@@ -1,0 +1,7 @@
+# Pre-trained models will be cached here
+# This directory will contain:
+# - Face detection models
+# - Emotion detection models
+# - Eye tracking models
+
+# .gitkeep is used to ensure the directory is tracked by git even when empty

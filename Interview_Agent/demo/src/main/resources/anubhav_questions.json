@@ -1,0 +1,363 @@
+{
+    "Accops Systems Private Limited": [
+        "write code that could manage various types of transactions such as deposits, withdrawals, and balance inquiries"
+    ],
+    "Amazon": [
+        "to find the mean of the first 3 numbers in the running stream of numbers",
+        "given a n*n chessboard, coordinates of a knight, coordinates of a target, find minimum number of steps to reach target"
+    ],
+    "Apertus Association": [],
+    "Avalara": [
+        "implement a queue with two stacks. i implemented it on my sublime text sharing my screen. they were satisfied with my approach",
+        "what is oops?",
+        "what are virtual functions , abstract class in c++?",
+        "can a constructor be private in c++?",
+        "indexing, it's types and why do we use it?"
+    ],
+    "BNY Mellon": [
+        "write a program to convert given and expression into or expression? here you should know de morgen's law (i forgot😗), if forgot make table of or and and you will get to final expression through observation",
+        "now change {} with different number of strings? make string as a = \"before_part\" + \"another_string\" + \"after_part",
+        "similarly with 2nd part but if {} is to be changed with different strings",
+        "a pre-defined function is present in c++ as well as in python called replace",
+        "can constructor be created in abstract class ? explain (tricky question)",
+        "had to code 3 sql queries, what are triggers?",
+        "how are map and unordered_map implemented ?",
+        "why is javascript single-threaded?",
+        "what are callbacks?",
+        "what are promises and how you implement them?",
+        "how do you maintain authentication of your apis?",
+        "what are synonyms in sql?",
+        "what is indexing? types of indexes?",
+        "what are transactions?",
+        "reverse even elements in a linked list",
+        "write pseudo code for an acute angle between the hour and minute hands",
+        "what is indexing and why we use indexing?",
+        "q1. can we override static method in java? (kr skte hai mereko bhi us din pata chla)",
+        "q7. interface vs abstract class?",
+        "q9. implementation of thread in java?",
+        "q5. where is treemap used?",
+        "given a n*n matrix find a sub matrix of maximum size with sum less than or equal to a given value k",
+        "sliding window technique"
+    ],
+    "Bank Of Singapore": [
+        "which sorting algo is better for large data and why"
+    ],
+    "Barclays": [],
+    "BrowserStack": [
+        "node.js vs flask. why did you use node.js for the previous round?",
+        "what are callbacks?",
+        "can we use nested callbacks?",
+        "what are node.js event loops?",
+        "what do you know about browserstack?"
+    ],
+    "CRED": [
+        "given n umbrellas each with their weight and area to cover calculate the maximum area possible to cover with max weight given (dp problem)",
+        "given an array calculate the no of inversions (bit, merge sort)",
+        "create a custom django exception handling middleware",
+        "create two django models and write few utility methods to query those objects it also included foreign key relations",
+        "8) how did you performed searching using elastic search ?",
+        "9) what was the logic behind contextual search ?",
+        "12) if you are designing swiggy like application which database will you use and why ?"
+    ],
+    "Cisco": [
+        "difference between tcp and udp with examples",
+        "what is arp(address resolution protocol) and how it works?",
+        "when do we use tcp and when udp? explain with examples",
+        "what is an abstract class? explain its use with an example"
+    ],
+    "CodeNation": [],
+    "Commvault": [
+        "simple bfs",
+        "one was to merge two sorted linked list",
+        "write clean, readable and efficient code with comments",
+        "write code to reverse a string. time complexity? can you do it in less than o(n)?",
+        "some c++",
+        "oop concepts like volatile",
+        "heap fragmentation etc",
+        "you are reading student names from a database. you know the number of students and also the max size of the name of the student. which data structure will you use to store it? dynamic or static? why?",
+        "difference between java and cpp?",
+        "when heap get's full what happens? what is role of os in this? and if we are inserting data into heap then how os finds out the free location in heap?"
+    ],
+    "ConnectWise": [
+        "the tech stack you have chosen"
+    ],
+    "DE Shaw": [
+        "explain osi and tcp/ip model, their difference",
+        "topological sorting",
+        "finding min in every subarray of size k",
+        "oops & it's 4 principles(or call them whatever you wish)",
+        "difference between data abstraction & data encapsulation with example. namespaces in c++"
+    ],
+    "DeepInfoLab": [
+        "2) what is a convolutional neural network convolutional?"
+    ],
+    "Delloite USI": [
+        "verbal ability questions. other sections had mcqs on dbms, dsa, cn, and web dev",
+        "reverse a linked list etc",
+        "networks were asked as well",
+        "what are the seven layers in the osi model?",
+        "language you are comfortable in?...( then asked a casual ques that why everyone in ait says c/c++ )",
+        "write a sorting algorithm code ( explained & wrote insertion sort pseudo code in notepad.)",
+        "do you know any other sorting algorithm?",
+        "write a pseudo code to print all prime nos between zero and n"
+    ],
+    "Deutsche Bank": [
+        "database management systems",
+        "computer networks",
+        "difference between arrays and linked list",
+        "check whether a number is prime",
+        "find factorial of a number",
+        "explain binary trees",
+        "check cycle and remove cycle from linked list",
+        "explain oop upto whatever extent you know. (i just spoke until she told me to stop)!!",
+        "implement the concept of inheritance and explain the difference between data abstraction and data encapsulation",
+        "dbms which uses the concept of group by clause",
+        "how will you handle the null values in the frontend coming from the database?",
+        "write the code for it and i wrote it in the chat box",
+        "q. what are cursors and triggers in dbms? - > i told him the basic definition of both including the syntax and examples",
+        "q. any future plans for higher studies or research?",
+        "what are b , b+ trees and how they work",
+        "reverse a linked list ( iterative and recursive )",
+        "what is java garbage collection?",
+        "explain different types of joins with example. 1 sql query question involving joins and group by and order by",
+        "what are acid properties , explain with examples",
+        "what are abstract classes, explain with example",
+        "what is the binary search?",
+        "what is a binary search tree?",
+        "what is meant by global variable, local variables, and automatic variable?",
+        "what is a queue and what is a priority queue?",
+        "what is heap sort?",
+        "greedy sort about which i had no idea",
+        "design a database for school",
+        "what are reactive and template-driven forms (in angular because my previous intern was on mean stack)",
+        "explain oop in detail. then types of inheritance in detail",
+        "reverse the linked list",
+        "find the maximum element in the given array",
+        "write sql query for extracting common data from given two tables",
+        "write sql query for getting third highest salary from given salary column ( there were many possible solutions for this, but i gave the answer using limit based subquery )",
+        "explain exceptional handling in the database",
+        "explain recursion with example (c++ code for fibonacci series )",
+        "explain merge sort and then write its c++ code",
+        "explain oop in detail",
+        "difference between c++ and java",
+        "how is java machine-independent?",
+        "write c++ code for linked list, stack, and queue implementation",
+        "write a program to find missing elements from sorted consecutive numbers",
+        "why frameworks like react and angular are getting so famous"
+    ],
+    "Druva": [],
+    "Dunzo": [
+        "given two linked list a and b. replace the linked list a from l to r position with linked list b",
+        "oop such as what is polymorphism"
+    ],
+    "Figmd": [
+        "reverse words in a given sentence",
+        "difference between an array and a linked list"
+    ],
+    "Flipkart": [
+        "find the number of distinct ways to get a sum using elements of the array (without repetition)",
+        "based on binary search",
+        "write the code and dry run on some test cases",
+        "based on bfs traversal"
+    ],
+    "Frappe": [],
+    "Fyle": [],
+    "GRAB": [
+        "string manipulation",
+        "and dynamic programming",
+        "how does multithreading works in python?",
+        "how will you store the history of the users? (discussion on the database schema)",
+        "how will you show the leaderboard on the client-side? (discussion on the database schema)",
+        "how indexing work in mysql?"
+    ],
+    "Goldman Sachs": [
+        "difference between array and link list (in depth",
+        "maps in c++",
+        "collision, difference between maps and unordered maps",
+        "to code a problem related to frequency and i coded it in just 2- 3mins and",
+        "what is dynamic programming? give examples",
+        "map (internal working",
+        "find the first non-repeating character in a string",
+        "based on binary tree",
+        "the second was based on hashmap ( link )",
+        "explain mergesort and code it on my editor( i had shared the screen)",
+        "explain dynamic programming and some standard problems on it",
+        "explain the logic of converting that linked list to binary search tree given by her, i found out that the linked list was sorted and the bst given by her was balanced bst",
+        "linked list addition link",
+        "why we use abstract classes?"
+    ],
+    "Google": [
+        "my tech stack",
+        "a medium-hard graph-based problem",
+        "a challenging dynamic programming problem",
+        "a medium-level dynamic programming (dp) problem",
+        "based on dynamic programming",
+        "it included binary search or hashing (it had multiple approaches)",
+        "what's best/ worst running time for merge sort?",
+        "what's average / worst running time for quick sort?",
+        "what is the underlying ds behind priority queue",
+        "for an unweighted graph, which algorithm should be used to find shortest path: breath first search or dijkstra?"
+    ],
+    "Groww": [
+        "what are arrow functions and why it is was introduced. (be clear with this )",
+        "what are promises and what is the newer method of handling promises",
+        "what are callback functions, callback hell"
+    ],
+    "HackerEarth": [
+        "create a react component for the search autocomplete feature using data from api (he gave me the api)"
+    ],
+    "Helpshift": [
+        "given a map of n cities in which some cities are connected by m undirected roads in total",
+        "explain oop concepts",
+        "which is indexing in database and which data structure are used for indexing",
+        "why b tree is used in indexing",
+        "what is transaction in dbms",
+        "what is different between hashmap and list in java",
+        "what does o(1) time complexity means",
+        "what is a cache memory?how does it work",
+        "how the data in cache memory is updated",
+        "what are apis?",
+        "difference between sql and no sql and their uses",
+        "what are distributed databases and their advantages",
+        "when we do google search what happens in backend(means how google search works)",
+        "what are various protocols used for the world wide web"
+    ],
+    "HyperVerge": [],
+    "Innovaccer": [
+        "difference between flask and django",
+        "why sql database. difference between sql and no-sql",
+        "write some queries in sql",
+        "what is indexing?",
+        "explain mergesort and quicksort and differentiate between them"
+    ],
+    "Lastminute": [
+        "database designing"
+    ],
+    "Mahindra & Mahindra": [],
+    "Mastercard": [
+        "and evaluating my knowledge of javascript",
+        "why i chose node.js over another backend framework like django?",
+        "explain how closures work in javascript. can you give an example?",
+        "what is the event loop in javascript, and how does it handle asynchronous operations?",
+        "what are hooks in react, and how do they differ from class components in managing state and lifecycle?",
+        "how would you design the database for this system? what tables or collections would you create in sql or mongodb?",
+        "what api endpoints would you create for ordering food, viewing menus, and managing orders?",
+        "what is the difference between sql and nosql databases? in what scenarios would you use each?",
+        "how would you manage data consistency across distributed databases in a large-scale system?"
+    ],
+    "Microsoft": [
+        "a simple array problem",
+        "based on arrays",
+        "hash maps to which i told her that these are implemented using unordered maps in cpp",
+        "simple maps are like self-balancing bst in cpp",
+        "implement both the top and bottom views of a binary tree in the same program",
+        "interviewer: oh! that's nice. so why c++?",
+        "interviewer: which model us widely preferred and why?",
+        "dumbass me: *ye computer graphics kyu pooch raha hai ?* - sure, i can use flood fill algorithm to implement this",
+        "explain what oop is",
+        "write a code to print the value of nodes which are visible if we look from the left side of the tree",
+        "difference between quick sort and merge sort. i pushed discussion on merge sort in o(1) extra space",
+        "implement a chess game using oops in any language",
+        "abstract classes",
+        "question: in the given array print the 3rd largest number?",
+        "given a family tree, how would you print the whole family generation wise?",
+        "queue data structure implementation?",
+        "all operations queue support",
+        "the trade-offs of array implementation?",
+        "given full flight ticket reimbursement, hotel reimbursement up to 8k"
+    ],
+    "MindBody": [
+        "oops ( simple ones)",
+        "1 or 2 situation reaction questions"
+    ],
+    "Mindtickle": [],
+    "Mini Orange": [
+        "find the middle of a single linkedlist with the best complexities",
+        "write a code for balanced brackets (click here to view )"
+    ],
+    "Mobikwik": [],
+    "NASDAQ": [
+        "java such as",
+        "why java is platform independent",
+        "what is a bytecode and there were more ques related to java",
+        "explain how google maps work",
+        "write the sql query"
+    ],
+    "PayTM Money": [
+        "bassed on array",
+        "binary tree",
+        "a dp question ( min cost path | dp-6 - geeksforgeeks )",
+        "difference between udp and tcp , any example where they are used"
+    ],
+    "PayU": [
+        "what is interface and abstract class? (i explained it completely with examples)",
+        "my preferred coding language to which i said c++",
+        "implement only enqueue and dequeue functions"
+    ],
+    "Perennial Technology": [],
+    "Postman": [
+        "how passwords are saved in the database",
+        "what is indexing and the type of indexing?",
+        "which data structure is used for indexing"
+    ],
+    "Quantiphi": [],
+    "Razorpay": [
+        "javascript as well as problem solving skills",
+        "q6. what are react functional componenets ?"
+    ],
+    "Realthingks": [],
+    "Sahaj": [],
+    "Saint Gobain": [],
+    "ShareChat": [
+        "what is mean, mode and median",
+        "what is indexing?"
+    ],
+    "Skuad": [
+        "write code for the functionaly which they found interesting"
+    ],
+    "Taranawireless": [
+        "q8. what are mutex and semaphores ?",
+        "q.11 what are the various protocols i know on application layer ?",
+        "also checked if i was used to coding in modern c++",
+        "implement a custom for loop for the class so that we can iterate over the linked list object itself",
+        "network security",
+        "explain the aspects of the network security"
+    ],
+    "UBS": [
+        "write pseudo code for insertion and deletion in the binary search tree (both recursive and iterative approach)"
+    ],
+    "Ubisoft": [
+        "how would you use abstract classes in game development?",
+        "4 pillars of oops?",
+        "explain components of a graphics pipeline?",
+        "stack and heap memory?",
+        "how much would you rate yourself on c++ on the scale of 1 -10? i said 8 to which he said even he wouldnt rate himself that much because the language is too vast",
+        "what happens during compilation of c++ program? what happens before compilation?",
+        "what is cache? practical use of cache. (not cache such as dns cache, use of actual physical cache memory)"
+    ],
+    "Veritas Technologies LLC": [
+        "computer science subjects (computer network",
+        "core cs subjects with a primary focus on networking"
+    ],
+    "Xpanxion": [
+        "reverse the string without using inbulit function"
+    ],
+    "ZS Associates": [],
+    "Zeta": [
+        "if during a transaction we commit and system crashes, before writing it to the disk, how will you handle such situation?",
+        "can we lock a particular row in a relational database?",
+        "how are transactions performed in mysql?",
+        "what is indexing & how is it useful",
+        "how will you store user passwords in a sql table.(hint: storing in plain text is obvious, we can create a hash and store the hash. also, there are numerous ways out there)"
+    ],
+    "eQ Technologic": [
+        "why c++?",
+        "explain oops?",
+        "what are the four pillars of oops?",
+        "what is an access modifier?",
+        "explain the difference between protected and private access modifiers?",
+        "explain abstract and interface",
+        "write down an sql query to update the address of a particular employee",
+        "explain aws api gateway"
+    ]
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Interview Agent</title>
+    <link rel="stylesheet" href="/css/app.css"/>
+</head>
+
+<body>
+<div id="loaderOverlay" class="loader-overlay">
+    <div class="loader-card">
+        <div class="spinner"></div>
+        <h3 id="loaderTitle" class="loader-title">Working on it...</h3>
+        <p id="loaderSubtitle" class="loader-subtitle"></p>
+        <div class="loader-bar"><span></span></div>
+    </div>
+</div>
+
+<div id="eyeContactAlert" class="popup-alert">
+    Please look at the screen.
+</div>
+
+<div class="container">
+    <div class="hero">
+        <h1>AI Interview Agent</h1>
+        <p>Upload your resume, pick a difficulty, and run a focused mock interview with a final feedback report.</p>
+    </div>
+
+    <div id="startSection" class="card">
+        <div class="grid">
+            <div>
+                <label for="company">Company</label>
+                <input type="text" id="company" placeholder="e.g. Amazon"/>
+            </div>
+            <div>
+                <label for="difficulty">Difficulty</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top: 14px;">
+            <div>
+                <label for="apiBaseUrl">Backend API Base URL</label>
+                <input type="text" id="apiBaseUrl" placeholder="Leave empty for same domain"/>
+            </div>
+            <div>
+                <label for="llmProvider">LLM Provider</label>
+                <select id="llmProvider">
+                    <option value="ollama" selected>Ollama (Local/Remote)</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="grok">Grok (xAI)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top: 14px;">
+            <div>
+                <label for="llmBaseUrl">LLM Base URL (Optional)</label>
+                <input type="text" id="llmBaseUrl" placeholder="e.g. http://localhost:11434/api/generate"/>
+            </div>
+            <div>
+                <label for="llmModel">LLM Model (Optional)</label>
+                <input type="text" id="llmModel" placeholder="e.g. llama3 / gpt-4o-mini / grok-2-latest"/>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <label for="llmApiKey">LLM API Key (OpenAI/Grok only)</label>
+            <input type="password" id="llmApiKey" placeholder="sk-... or xai-..."/>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <label for="resume">Upload Resume</label>
+            <input type="file" id="resume" accept=".pdf,.doc,.docx,.txt"/>
+        </div>
+
+        <div class="btn-row">
+            <button id="startBtn" onclick="startInterview()">Start Interview</button>
+        </div>
+        <p id="status"></p>
+        <p id="error"></p>
+    </div>
+
+    <div id="questionSection" class="card">
+        <span id="progressPill" class="pill"></span>
+        <h3 id="questionText" class="question"></h3>
+
+        <div class="proctoring-panel">
+            <div class="camera-box">
+                <video id="cameraPreview" autoplay muted playsinline></video>
+                <canvas id="captureCanvas" width="320" height="240"></canvas>
+            </div>
+            <div class="live-badges">
+                <span class="badge" id="badgeEmotion">Emotion: unknown</span>
+                <span class="badge" id="badgeFocus">Focus: unknown</span>
+                <span class="badge" id="badgeEyeContact">Eye Contact: false</span>
+                <span class="badge" id="badgeAttention">Attention: 0.00</span>
+            </div>
+        </div>
+
+        <div class="voice-row">
+            <button id="speakBtn" class="btn-cyan" type="button" onclick="speakCurrentQuestion()">Speak Question</button>
+            <button id="startRecBtn" class="btn-cyan" type="button" onclick="startRecording()">Start Recording</button>
+            <button id="stopRecBtn" class="btn-red" type="button" onclick="stopRecording()" disabled>Stop Recording</button>
+            <label class="voice-toggle" for="autoSpeakToggle">
+                <input id="autoSpeakToggle" type="checkbox" checked />
+                Auto speak question
+            </label>
+        </div>
+        <p id="speechStatus"></p>
+        <p id="speechSupport"></p>
+
+        <label for="answer">Your Answer</label>
+        <textarea id="answer" placeholder="Explain your approach clearly..."></textarea>
+
+        <div class="btn-row">
+            <button id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
+        </div>
+        <p id="score"></p>
+    </div>
+
+    <div id="reportSection" class="card">
+        <h3 style="margin-top:0;">Interview Report</h3>
+        <p id="overallScore"></p>
+        <div class="report-grid">
+            <div class="report-item">
+                <h4>Strengths</h4>
+                <p id="strengths"></p>
+            </div>
+            <div class="report-item">
+                <h4>Weaknesses</h4>
+                <p id="weaknesses"></p>
+            </div>
+            <div class="report-item">
+                <h4>Recommendations</h4>
+                <p id="recommendations"></p>
+            </div>
+            <div class="report-item">
+                <h4>Proctoring Summary</h4>
+                <p id="avgAttention"></p>
+                <p id="focusedPct"></p>
+                <p id="eyeContactPct"></p>
+                <p id="dominantEmotion"></p>
+                <p id="distractionCount"></p>
+            </div>
+            <div class="report-item">
+                <h4>Proctoring Timeline</h4>
+                <ul id="proctoringTimeline"></ul>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="muted-btn" onclick="restartInterview()">Start New Interview</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

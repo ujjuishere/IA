@@ -1,0 +1,29 @@
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java build output
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Local databases and logs
+**/data/*.mv.db
+**/data/*.trace.db
+*.log
+
+# Python
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.venv/
+**/venv/
+
+# Environment files
+.env
+.env.*
+!.env.example
