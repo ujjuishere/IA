@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -42,6 +43,12 @@ public class LlmGatewayService {
     @Value("${llm.grok.model:grok-2-latest}")
     private String defaultGrokModel;
 
+    @Value("${llm.gemini.url:https://generativelanguage.googleapis.com/v1beta/openai/chat/completions}")
+    private String defaultGeminiUrl;
+
+    @Value("${llm.gemini.model:gemini-2.0-flash}")
+    private String defaultGeminiModel;
+
     @Value("${llm.api-key:}")
     private String defaultApiKey;
 
@@ -65,11 +72,23 @@ public class LlmGatewayService {
         options.put("temperature", temperature);
         body.put("options", options);
 
-        Map response = restTemplate.postForObject(config.url, body, Map.class);
-        if (response == null || response.get("response") == null) {
-            throw new RuntimeException("Empty response from Ollama");
+        String ollamaUrl = normalizeOllamaUrl(config.url);
+
+        try {
+            Map response = restTemplate.postForObject(ollamaUrl, body, Map.class);
+            if (response == null || response.get("response") == null) {
+                throw new RuntimeException("Empty response from Ollama");
+            }
+            return response.get("response").toString();
+        } catch (HttpStatusCodeException e) {
+            String message = "Ollama request failed with HTTP " + e.getStatusCode().value() + " at " + ollamaUrl;
+
+            if (e.getStatusCode().value() == 403 && ollamaUrl.contains("ngrok")) {
+                message += ". Your tunnel is blocking POST requests. Verify by testing POST directly on the ngrok URL and recreate the tunnel if needed.";
+            }
+
+            throw new RuntimeException(message, e);
         }
-        return response.get("response").toString();
     }
 
     private String callOpenAiCompatible(String prompt, double temperature, ProviderConfig config) {
@@ -146,6 +165,15 @@ public class LlmGatewayService {
             );
         }
 
+        if ("gemini".equals(provider)) {
+            return new ProviderConfig(
+                provider,
+                baseUrl.isBlank() ? defaultGeminiUrl : baseUrl,
+                model.isBlank() ? defaultGeminiModel : model,
+                apiKey.isBlank() ? defaultApiKey : apiKey
+            );
+        }
+
         return new ProviderConfig(
                 "ollama",
                 baseUrl.isBlank() ? defaultOllamaUrl : baseUrl,
@@ -154,10 +182,31 @@ public class LlmGatewayService {
         );
     }
 
+    private String normalizeOllamaUrl(String rawUrl) {
+        String url = sanitize(rawUrl);
+        if (url.isBlank()) {
+            return defaultOllamaUrl;
+        }
+
+        String lowered = url.toLowerCase(Locale.ROOT);
+        if (lowered.endsWith("/api/generate")) {
+            return url;
+        }
+
+        if (lowered.contains("/api/") || lowered.endsWith("/api")) {
+            return url.endsWith("/") ? url + "generate" : url + "/generate";
+        }
+
+        return url.endsWith("/") ? url + "api/generate" : url + "/api/generate";
+    }
+
     private String normalizeProvider(String provider) {
         String normalized = sanitize(provider).toLowerCase(Locale.ROOT);
         if (normalized.equals("xai")) {
             return "grok";
+        }
+        if (normalized.equals("google")) {
+            return "gemini";
         }
         return normalized;
     }

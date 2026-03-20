@@ -52,6 +52,7 @@
                     <option value="ollama" selected>Ollama (Local/Remote)</option>
                     <option value="openai">OpenAI</option>
                     <option value="grok">Grok (xAI)</option>
+                    <option value="gemini">Gemini (Google)</option>
                 </select>
             </div>
         </div>
@@ -59,17 +60,17 @@
         <div class="grid" style="margin-top: 14px;">
             <div>
                 <label for="llmBaseUrl">LLM Base URL (Optional)</label>
-                <input type="text" id="llmBaseUrl" placeholder="e.g. http://localhost:11434/api/generate"/>
+                <input type="text" id="llmBaseUrl" placeholder="e.g. http://localhost:11434 or https://<ngrok-domain>"/>
             </div>
             <div>
                 <label for="llmModel">LLM Model (Optional)</label>
-                <input type="text" id="llmModel" placeholder="e.g. llama3 / gpt-4o-mini / grok-2-latest"/>
+                <input type="text" id="llmModel" placeholder="e.g. llama3 / gpt-4o-mini / grok-2-latest / gemini-2.0-flash"/>
             </div>
         </div>
 
         <div style="margin-top: 14px;">
-            <label for="llmApiKey">LLM API Key (OpenAI/Grok only)</label>
-            <input type="password" id="llmApiKey" placeholder="sk-... or xai-..."/>
+            <label for="llmApiKey">LLM API Key (OpenAI/Grok/Gemini)</label>
+            <input type="password" id="llmApiKey" placeholder="sk-... or xai-... or AIza..."/>
         </div>
 
         <div style="margin-top: 14px;">
