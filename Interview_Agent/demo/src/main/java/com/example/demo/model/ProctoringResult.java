@@ -1,21 +1,18 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+@JsonDeserialize(using = ProctoringResultDeserializer.class)
 public class ProctoringResult {
 
     private String emotion;
     private double confidence;
     private String focus;
-    @JsonProperty("eye_contact")
     private boolean eyeContact;
-    @JsonProperty("face_detected")
     private boolean faceDetected;
-    @JsonProperty("attention_score")
     private double attentionScore;
-    @JsonProperty("gaze_direction")
     private String gazeDirection;
-    @JsonProperty("processing_time_ms")
     private double processingTimeMs;
 
     public ProctoringResult() {

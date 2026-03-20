@@ -58,7 +58,7 @@ public class InterviewController {
 
         String resumeText = resumeService.extractText(file);
         List<String> skills = skillExtractionService.extractSkills(resumeText);
-
+        
         List<String> datasetQuestions =
                 questionService.getTopQuestions(company);
 

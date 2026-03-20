@@ -142,7 +142,7 @@ public class ProctoringClient {
 
     private String normalizeUrlPart(String value, boolean path) {
         if (value == null || value.isBlank()) {
-            return path ? "/analyze" : "http://127.0.0.1:8000";
+            return path ? "/analyze" : "http://127.0.0.1:8001";
         }
 
         String trimmed = value.trim();
