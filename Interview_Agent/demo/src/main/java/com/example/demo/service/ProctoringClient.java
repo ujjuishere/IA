@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -31,11 +32,17 @@ public class ProctoringClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Value("${proctoring.connect-timeout-ms:3000}")
+    private int connectTimeoutMs;
+
+    @Value("${proctoring.read-timeout-ms:8000}")
+    private int readTimeoutMs;
+
+    @Value("${proctoring.max-attempts:3}")
+    private int maxAttempts;
+
     public ProctoringClient() {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(2000);
-        requestFactory.setReadTimeout(2000);
-        this.restTemplate = new RestTemplate(requestFactory);
+        this.restTemplate = new RestTemplate();
     }
 
     @Value("${proctoring.base-url:http://127.0.0.1:8001}")
@@ -53,9 +60,9 @@ public class ProctoringClient {
             return ProctoringResult.fallback();
         }
 
-        String endpoint = baseUrl + analyzePath;
+        String endpoint = buildEndpoint(baseUrl, analyzePath);
+        configureTimeouts();
 
-        int maxAttempts = 2;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 HttpHeaders headers = new HttpHeaders();
@@ -89,15 +96,79 @@ public class ProctoringClient {
 
             } catch (ResourceAccessException | HttpServerErrorException ex) {
                 if (attempt == maxAttempts) {
-                    logger.warn("Proctoring call failed after retry for interviewId={} at {}. Using fallback.", interviewId, Instant.now(), ex);
+                    logger.warn("Proctoring call failed after retries for interviewId={} endpoint={} at {}. Using fallback.",
+                            interviewId, endpoint, Instant.now(), ex);
+                    return ProctoringResult.fallback();
+                }
+            } catch (HttpStatusCodeException ex) {
+                String responseBody = ex.getResponseBodyAsString();
+                logger.warn("Proctoring HTTP failure interviewId={} endpoint={} status={} body={}",
+                        interviewId,
+                        endpoint,
+                        ex.getStatusCode().value(),
+                        truncate(responseBody, 220));
+
+                if (attempt == maxAttempts) {
                     return ProctoringResult.fallback();
                 }
             } catch (Exception ex) {
-                logger.warn("Proctoring call failed for interviewId={} at {}. Using fallback.", interviewId, Instant.now(), ex);
+                logger.warn("Proctoring call failed for interviewId={} endpoint={} at {}. Using fallback.",
+                        interviewId, endpoint, Instant.now(), ex);
                 return ProctoringResult.fallback();
             }
         }
 
         return ProctoringResult.fallback();
+    }
+
+    private void configureTimeouts() {
+        SimpleClientHttpRequestFactory requestFactory;
+        if (restTemplate.getRequestFactory() instanceof SimpleClientHttpRequestFactory existingFactory) {
+            requestFactory = existingFactory;
+        } else {
+            requestFactory = new SimpleClientHttpRequestFactory();
+            restTemplate.setRequestFactory(requestFactory);
+        }
+
+        requestFactory.setConnectTimeout(Math.max(1000, connectTimeoutMs));
+        requestFactory.setReadTimeout(Math.max(1000, readTimeoutMs));
+    }
+
+    private String buildEndpoint(String rawBaseUrl, String rawAnalyzePath) {
+        String normalizedBaseUrl = normalizeUrlPart(rawBaseUrl, false);
+        String normalizedAnalyzePath = normalizeUrlPart(rawAnalyzePath, true);
+        return normalizedBaseUrl + normalizedAnalyzePath;
+    }
+
+    private String normalizeUrlPart(String value, boolean path) {
+        if (value == null || value.isBlank()) {
+            return path ? "/analyze" : "http://127.0.0.1:8000";
+        }
+
+        String trimmed = value.trim();
+        if (path) {
+            if (!trimmed.startsWith("/")) {
+                trimmed = "/" + trimmed;
+            }
+            while (trimmed.endsWith("/") && trimmed.length() > 1) {
+                trimmed = trimmed.substring(0, trimmed.length() - 1);
+            }
+            return trimmed;
+        }
+
+        while (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed;
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength) + "...";
     }
 }
