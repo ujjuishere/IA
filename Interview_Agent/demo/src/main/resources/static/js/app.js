@@ -15,6 +15,8 @@ let isRecording = false;
 let baseAnswerText = "";
 let finalTranscript = "";
 let apiBaseUrl = "";
+const AUTH_TOKEN_KEY = "authToken";
+let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || "";
 
 function normalizeApiBaseUrl(rawValue) {
     if (!rawValue) {
@@ -26,6 +28,238 @@ function normalizeApiBaseUrl(rawValue) {
 function apiUrl(path) {
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
     return apiBaseUrl ? `${apiBaseUrl}${normalizedPath}` : normalizedPath;
+}
+
+function updateApiBaseUrlFromInput() {
+    const baseUrlInput = document.getElementById("apiBaseUrl");
+    apiBaseUrl = normalizeApiBaseUrl(baseUrlInput ? baseUrlInput.value : "");
+}
+
+function setAuthStatus(message) {
+    const status = document.getElementById("authStatus");
+    status.style.display = message ? "block" : "none";
+    status.innerText = message || "";
+}
+
+function setAuthError(message) {
+    const error = document.getElementById("authError");
+    error.style.display = message ? "block" : "none";
+    error.innerText = message || "";
+}
+
+function setInterviewShellVisibility(isAuthenticated) {
+    const authSection = document.getElementById("authSection");
+    const interviewShell = document.getElementById("interviewShell");
+
+    authSection.style.display = isAuthenticated ? "none" : "block";
+    interviewShell.style.display = isAuthenticated ? "block" : "none";
+}
+
+function setSignedInUser(profile) {
+    const signedInUser = document.getElementById("signedInUser");
+    if (!profile) {
+        signedInUser.innerText = "Signed out";
+        return;
+    }
+
+    signedInUser.innerText = `${profile.name} • ${profile.email} • ${profile.provider}`;
+}
+
+async function parseApiError(response, fallbackMessage) {
+    try {
+        const contentType = response.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+            const payload = await response.json();
+            return payload?.error || payload?.message || fallbackMessage;
+        }
+
+        const text = await response.text();
+        return text && text.trim() ? text : fallbackMessage;
+    } catch {
+        return fallbackMessage;
+    }
+}
+
+function normalizeClientError(error, fallbackMessage) {
+    if (error?.message && !String(error.message).includes("Failed to fetch")) {
+        return error.message;
+    }
+    return fallbackMessage;
+}
+
+function getAuthHeaders() {
+    return authToken ? { Authorization: `Bearer ${authToken}` } : {};
+}
+
+async function apiFetch(path, options = {}, requiresAuth = true) {
+    updateApiBaseUrlFromInput();
+
+    const mergedHeaders = {
+        ...(options.headers || {}),
+        ...(requiresAuth ? getAuthHeaders() : {})
+    };
+
+    try {
+        return await fetch(apiUrl(path), {
+            ...options,
+            headers: mergedHeaders
+        });
+    } catch {
+        throw new Error("Unable to reach backend. Please check server and API base URL.");
+    }
+}
+
+function readAuthInput() {
+    return {
+        name: (document.getElementById("authName")?.value || "").trim(),
+        email: (document.getElementById("authEmail")?.value || "").trim(),
+        password: (document.getElementById("authPassword")?.value || "").trim()
+    };
+}
+
+function storeToken(token) {
+    authToken = token || "";
+    if (authToken) {
+        localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+    } else {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+}
+
+function setAuthButtons(isAuthenticated) {
+    document.getElementById("signoutBtn").disabled = !isAuthenticated;
+    document.getElementById("signupBtn").disabled = isAuthenticated;
+    document.getElementById("signinBtn").disabled = isAuthenticated;
+    document.getElementById("googleBtn").disabled = isAuthenticated;
+    document.getElementById("githubBtn").disabled = isAuthenticated;
+    document.getElementById("startBtn").disabled = !isAuthenticated;
+}
+
+async function loadCurrentUser() {
+    if (!authToken) {
+        setAuthButtons(false);
+        setAuthStatus("Please sign in to start interview.");
+        setSignedInUser(null);
+        setInterviewShellVisibility(false);
+        return;
+    }
+
+    try {
+        const response = await apiFetch("/api/auth/me");
+        if (!response.ok) {
+            throw new Error(await parseApiError(response, "Session expired. Please sign in again."));
+        }
+
+        const profile = await response.json();
+        setAuthButtons(true);
+        setAuthError("");
+        setAuthStatus("Authentication successful. Welcome back.");
+        setSignedInUser(profile);
+        setInterviewShellVisibility(true);
+    } catch (error) {
+        storeToken("");
+        setAuthButtons(false);
+        setAuthStatus("Please sign in to start interview.");
+        setAuthError(normalizeClientError(error, "Session is invalid or expired."));
+        setSignedInUser(null);
+        setInterviewShellVisibility(false);
+    }
+}
+
+async function signupWithEmail() {
+    setAuthError("");
+    const { name, email, password } = readAuthInput();
+
+    if (!name || !email || !password) {
+        setAuthError("Name, email and password are required for signup.");
+        return;
+    }
+
+    const response = await apiFetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+    }, false);
+
+    if (!response.ok) {
+        setAuthError(await parseApiError(response, "Signup failed. Please verify your details."));
+        return;
+    }
+
+    const payload = await response.json();
+
+    storeToken(payload.token);
+    await loadCurrentUser();
+}
+
+async function signinWithEmail() {
+    setAuthError("");
+    const { email, password } = readAuthInput();
+
+    if (!email || !password) {
+        setAuthError("Email and password are required for signin.");
+        return;
+    }
+
+    const response = await apiFetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    }, false);
+
+    if (!response.ok) {
+        setAuthError(await parseApiError(response, "Sign in failed. Please check your credentials."));
+        return;
+    }
+
+    const payload = await response.json();
+
+    storeToken(payload.token);
+    await loadCurrentUser();
+}
+
+function loginWithGoogle() {
+    updateApiBaseUrlFromInput();
+    window.location.href = apiUrl("/oauth2/authorization/google");
+}
+
+function loginWithGithub() {
+    updateApiBaseUrlFromInput();
+    window.location.href = apiUrl("/oauth2/authorization/github");
+}
+
+function signOut() {
+    restartInterview();
+    storeToken("");
+    setAuthButtons(false);
+    setInterviewShellVisibility(false);
+    setSignedInUser(null);
+    setAuthStatus("Signed out. Please sign in to continue.");
+    setAuthError("");
+}
+
+function consumeOAuthTokenFromUrl() {
+    const url = new URL(window.location.href);
+    const token = url.searchParams.get("token");
+    const provider = url.searchParams.get("provider");
+    const oauthError = url.searchParams.get("error");
+
+    if (oauthError) {
+        setAuthError(`OAuth sign-in failed: ${oauthError}. Please try again.`);
+        url.searchParams.delete("error");
+        window.history.replaceState({}, document.title, url.toString());
+        return;
+    }
+
+    if (!token) {
+        return;
+    }
+
+    storeToken(token);
+    setAuthStatus(`Signed in via ${provider || "OAuth"}. Loading your profile...`);
+    url.searchParams.delete("token");
+    url.searchParams.delete("provider");
+    window.history.replaceState({}, document.title, url.toString());
 }
 
 function showLoader(title, messages) {
@@ -184,7 +418,7 @@ async function captureFrameAndSend(interviewId) {
         const formData = new FormData();
         formData.append("frame", blob, "frame.jpg");
 
-        const response = await fetch(apiUrl(`/api/interviews/${interviewId}/proctoring/frame`), {
+        const response = await apiFetch(`/api/interviews/${interviewId}/proctoring/frame`, {
             method: "POST",
             body: formData
         });
@@ -374,6 +608,11 @@ async function startInterview() {
 
     setError("");
 
+    if (!authToken) {
+        setError("Please sign in first.");
+        return;
+    }
+
     let company = document.getElementById("company").value;
     let file = document.getElementById("resume").files[0];
     let difficulty = document.getElementById("difficulty").value;
@@ -381,7 +620,7 @@ async function startInterview() {
     const llmBaseUrl = document.getElementById("llmBaseUrl").value;
     const llmModel = document.getElementById("llmModel").value;
     const llmApiKey = document.getElementById("llmApiKey").value;
-    apiBaseUrl = normalizeApiBaseUrl(document.getElementById("apiBaseUrl").value);
+    updateApiBaseUrlFromInput();
 
     if (!company || !file) {
         setError("Please provide both company name and resume file.");
@@ -415,13 +654,13 @@ async function startInterview() {
     }
 
     try {
-        let response = await fetch(apiUrl("/interview/start"), {
+        let response = await apiFetch("/interview/start", {
             method: "POST",
             body: formData
         });
 
         if (!response.ok) {
-            throw new Error("Failed to start interview. Check backend and Ollama.");
+            throw new Error(await parseApiError(response, "Failed to start interview. Please verify backend and LLM settings."));
         }
 
         let data = await response.json();
@@ -436,7 +675,7 @@ async function startInterview() {
         await startProctoring(sessionId);
         await getQuestion();
     } catch (e) {
-        setError(e.message || "Unable to start interview.");
+        setError(normalizeClientError(e, "Unable to start interview."));
     } finally {
         hideLoader();
         document.getElementById("startBtn").disabled = false;
@@ -446,10 +685,16 @@ async function startInterview() {
 
 async function getQuestion() {
 
-    let response = await fetch(apiUrl(`/interview/question?sessionId=${sessionId}`));
+    let response;
+    try {
+        response = await apiFetch(`/interview/question?sessionId=${sessionId}`);
+    } catch (error) {
+        setError(normalizeClientError(error, "Could not fetch next question."));
+        return;
+    }
 
     if (!response.ok) {
-        setError("Could not fetch next question.");
+        setError(await parseApiError(response, "Could not fetch next question."));
         return;
     }
 
@@ -504,7 +749,7 @@ async function submitAnswer() {
     document.getElementById("submitBtn").disabled = true;
 
     try {
-        let response = await fetch(apiUrl("/interview/answer"), {
+        let response = await apiFetch("/interview/answer", {
 
             method: "POST",
 
@@ -520,7 +765,7 @@ async function submitAnswer() {
         });
 
         if (!response.ok) {
-            throw new Error("Failed to submit answer.");
+            throw new Error(await parseApiError(response, "Failed to submit answer."));
         }
 
         document.getElementById("score").style.display = "block";
@@ -528,7 +773,7 @@ async function submitAnswer() {
 
         setTimeout(getQuestion, 900);
     } catch (e) {
-        setError(e.message || "Unable to submit answer.");
+        setError(normalizeClientError(e, "Unable to submit answer."));
     } finally {
         document.getElementById("submitBtn").disabled = false;
     }
@@ -565,10 +810,10 @@ async function loadReport() {
     ]);
 
     try {
-        let response = await fetch(apiUrl(`/interview/report?sessionId=${sessionId}`));
+        let response = await apiFetch(`/interview/report?sessionId=${sessionId}`);
 
         if (!response.ok) {
-            throw new Error("Failed to generate report.");
+            throw new Error(await parseApiError(response, "Failed to generate report."));
         }
 
         let report = await response.json();
@@ -607,7 +852,7 @@ async function loadReport() {
         setStatus("");
     } catch (e) {
         setStatus("");
-        setError(e.message || "Unable to load report.");
+        setError(normalizeClientError(e, "Unable to load report."));
         document.getElementById("startSection").style.display = "block";
     } finally {
         hideLoader();
@@ -664,6 +909,13 @@ window.startRecording = startRecording;
 window.stopRecording = stopRecording;
 window.submitAnswer = submitAnswer;
 window.restartInterview = restartInterview;
+window.signupWithEmail = signupWithEmail;
+window.signinWithEmail = signinWithEmail;
+window.loginWithGoogle = loginWithGoogle;
+window.loginWithGithub = loginWithGithub;
+window.signOut = signOut;
 
 initSpeechFeatures();
 resetProctoringUi();
+consumeOAuthTokenFromUrl();
+loadCurrentUser();

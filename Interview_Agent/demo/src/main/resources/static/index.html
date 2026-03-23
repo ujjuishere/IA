@@ -22,8 +22,47 @@
 <div class="container">
     <div class="hero">
         <h1>AI Interview Agent</h1>
-        <p>Upload your resume, pick a difficulty, and run a focused mock interview with a final feedback report.</p>
+        <p>Practice interviews with AI feedback and proctoring. Sign in to begin your interview workspace.</p>
     </div>
+
+    <div id="authSection" class="card">
+        <h3 style="margin-top:0;">Welcome</h3>
+        <p class="section-subtitle">Create an account, sign in with email, or continue with Google / GitHub.</p>
+        <div class="grid">
+            <div>
+                <label for="authName">Name (for signup)</label>
+                <input type="text" id="authName" placeholder="Your name"/>
+            </div>
+            <div>
+                <label for="authEmail">Email</label>
+                <input type="text" id="authEmail" placeholder="you@example.com"/>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="Minimum 6 characters"/>
+        </div>
+
+        <div class="btn-row" style="flex-wrap: wrap;">
+            <button id="signupBtn" type="button" onclick="signupWithEmail()">Sign Up (Email)</button>
+            <button id="signinBtn" class="btn-cyan" type="button" onclick="signinWithEmail()">Sign In (Email)</button>
+            <button id="googleBtn" class="muted-btn" type="button" onclick="loginWithGoogle()">Continue with Google</button>
+            <button id="githubBtn" class="muted-btn" type="button" onclick="loginWithGithub()">Continue with GitHub</button>
+        </div>
+
+        <p id="authStatus"></p>
+        <p id="authError"></p>
+    </div>
+
+    <div id="interviewShell" style="display:none;">
+        <div class="card interview-header">
+            <div>
+                <h3 style="margin:0;">Interview Workspace</h3>
+                <p class="section-subtitle" id="signedInUser">Signed in</p>
+            </div>
+            <button id="signoutBtn" class="btn-red" type="button" onclick="signOut()">Sign Out</button>
+        </div>
 
     <div id="startSection" class="card">
         <div class="grid">
@@ -155,6 +194,7 @@
         <div class="btn-row">
             <button class="muted-btn" onclick="restartInterview()">Start New Interview</button>
         </div>
+    </div>
     </div>
 </div>
 

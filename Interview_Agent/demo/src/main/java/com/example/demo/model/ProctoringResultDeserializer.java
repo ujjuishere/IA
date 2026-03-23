@@ -7,11 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 
-/**
- * Custom deserializer for ProctoringResult
- * Handles snake_case field names from FastAPI proctoring service
- * while serializing to camelCase for frontend
- */
 public class ProctoringResultDeserializer extends JsonDeserializer<ProctoringResult> {
 
     @Override

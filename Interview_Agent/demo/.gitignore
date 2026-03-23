@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local H2 database artifacts ###
+data/*.db
+data/*.trace.db
+data/*.lock.db
