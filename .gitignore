@@ -27,3 +27,9 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Local diagnostic scripts (do not deploy)
+test_*.py
+
+# Legacy local execution shim (Judge0 is used now)
+Interview_Agent/demo/tools/

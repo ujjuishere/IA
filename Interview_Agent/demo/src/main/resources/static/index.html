@@ -153,8 +153,48 @@
         <p id="speechStatus"></p>
         <p id="speechSupport"></p>
 
-        <label for="answer">Your Answer</label>
+        <label id="answerLabel" for="answer">Your Answer</label>
         <textarea id="answer" placeholder="Explain your approach clearly..."></textarea>
+
+        <div id="codingBox" class="coding-box" style="display:none;">
+            <div class="coding-header">
+                <h4 style="margin:0;">Coding Workspace</h4>
+            </div>
+
+            <div class="grid" style="margin-top: 10px;">
+                <div>
+                    <label for="codeLanguage">Language</label>
+                    <input type="text" id="codeLanguage" value="python" placeholder="python"/>
+                </div>
+                <div>
+                    <label for="codeVersion">Version (Optional)</label>
+                    <input type="text" id="codeVersion" value="3.10.0" placeholder="e.g. 3.10.0 or *"/>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <label for="codeSource">Source Code</label>
+                <textarea id="codeSource" class="code-textarea" placeholder="Write your code here..."></textarea>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <label for="codeStdin">Standard Input (for Run)</label>
+                <textarea id="codeStdin" class="small-textarea" placeholder="Input for quick run..."></textarea>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <label for="codeTestCases">Test Cases JSON (for Submit)</label>
+                <textarea id="codeTestCases" class="small-textarea" placeholder='[{"input":"3","expectedOutput":"6"}]'></textarea>
+            </div>
+
+            <div class="btn-row">
+                <button id="codeRunBtn" class="btn-cyan" type="button" onclick="runCodeNow()">Run Code</button>
+                <button id="codeSubmitBtn" type="button" onclick="submitCodeNow()">Submit Code Tests</button>
+            </div>
+
+            <p id="codeStatus"></p>
+            <pre id="codeOutput" class="code-output"></pre>
+        </div>
 
         <div class="btn-row">
             <button id="submitBtn" onclick="submitAnswer()">Submit Answer</button>

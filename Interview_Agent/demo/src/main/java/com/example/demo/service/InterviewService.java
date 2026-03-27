@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.InterviewSession;
+import com.example.demo.model.InterviewQuestion;
 import com.example.demo.model.LlmRuntimeConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class InterviewService {
 
     @Autowired
     InterviewReportService interviewReportService;
-    public InterviewSession startInterview(String company, String difficulty, List<String> questions, LlmRuntimeConfig llmConfig) {
+    public InterviewSession startInterview(String company, String difficulty, List<InterviewQuestion> questions, LlmRuntimeConfig llmConfig) {
 
         String sessionId = UUID.randomUUID().toString();
 
@@ -26,7 +27,7 @@ public class InterviewService {
         return session;
     }
 
-    public String getNextQuestion(String sessionId) {
+    public InterviewQuestion getNextQuestion(String sessionId) {
 
         InterviewSession session = sessions.get(sessionId);
 
@@ -35,12 +36,18 @@ public class InterviewService {
         }
 
         if (session.isFinished()) {
-//            interviewReportService.generateReport(session);
-            return "INTERVIEW_FINISHED";
+            return null;
         }
 
-        return session.getQuestions()
-                .get(session.getCurrentQuestionIndex());
+        return session.getQuestions().get(session.getCurrentQuestionIndex());
+    }
+
+    public InterviewQuestion getCurrentQuestion(String sessionId) {
+        InterviewSession session = sessions.get(sessionId);
+        if (session == null || session.isFinished()) {
+            return null;
+        }
+        return session.getQuestions().get(session.getCurrentQuestionIndex());
     }
 
     public void submitAnswer(String sessionId, String answer) {

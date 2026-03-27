@@ -10,12 +10,12 @@ public class InterviewSession {
     private String difficulty;
     private LlmRuntimeConfig llmConfig;
 
-    private List<String> questions = new ArrayList<>();
+    private List<InterviewQuestion> questions = new ArrayList<>();
     private int currentQuestionIndex = 0;
 
     private List<String> answers = new ArrayList<>();
 
-    public InterviewSession(String sessionId, String company, String difficulty, List<String> questions, LlmRuntimeConfig llmConfig) {
+    public InterviewSession(String sessionId, String company, String difficulty, List<InterviewQuestion> questions, LlmRuntimeConfig llmConfig) {
         this.sessionId = sessionId;
         this.company = company;
         this.difficulty = difficulty;
@@ -28,7 +28,7 @@ public class InterviewSession {
     public String getDifficulty() { return difficulty; }
     public LlmRuntimeConfig getLlmConfig() { return llmConfig; }
 
-    public List<String> getQuestions() { return questions; }
+    public List<InterviewQuestion> getQuestions() { return questions; }
 
     public int getCurrentQuestionIndex() { return currentQuestionIndex; }
 

@@ -15,6 +15,9 @@ let isRecording = false;
 let baseAnswerText = "";
 let finalTranscript = "";
 let apiBaseUrl = "";
+let lastCodeSubmitResult = null;
+let lastCodeSubmittedSource = "";
+let currentQuestion = null;
 const AUTH_TOKEN_KEY = "authToken";
 let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || "";
 
@@ -312,6 +315,215 @@ function setError(message) {
 function setSpeechStatus(message) {
     const speechStatus = document.getElementById("speechStatus");
     speechStatus.innerText = message || "";
+}
+
+function setCodeStatus(message, isError = false) {
+    const status = document.getElementById("codeStatus");
+    status.style.display = message ? "block" : "none";
+    status.style.color = isError ? "#991b1b" : "#0f5132";
+    status.innerText = message || "";
+}
+
+function setCodeOutput(content) {
+    const output = document.getElementById("codeOutput");
+    output.style.display = content ? "block" : "none";
+    output.innerText = content || "";
+}
+
+function readCodeForm() {
+    return {
+        language: (document.getElementById("codeLanguage")?.value || "").trim() || "python",
+        version: (document.getElementById("codeVersion")?.value || "").trim() || "*",
+        sourceCode: document.getElementById("codeSource")?.value || "",
+        stdin: document.getElementById("codeStdin")?.value || "",
+        testCasesRaw: document.getElementById("codeTestCases")?.value || ""
+    };
+}
+
+function isCodingQuestion() {
+    return (currentQuestion?.type || "").toLowerCase() === "coding";
+}
+
+function renderQuestionByType(question) {
+    const answerLabel = document.getElementById("answerLabel");
+    const answerBox = document.getElementById("answer");
+    const codingBox = document.getElementById("codingBox");
+    const codeTestCases = document.getElementById("codeTestCases");
+
+    const coding = (question?.type || "").toLowerCase() === "coding";
+
+    if (coding) {
+        answerLabel.style.display = "none";
+        answerBox.style.display = "none";
+        codingBox.style.display = "block";
+
+        document.getElementById("codeLanguage").value = question.language || "python";
+        document.getElementById("codeSource").value = question.starterCode || "";
+        document.getElementById("codeStdin").value = "";
+        codeTestCases.value = JSON.stringify(question.testCases || [], null, 2);
+        codeTestCases.readOnly = true;
+
+        setSpeechStatus("Coding question loaded. Write code, run, then submit.");
+    } else {
+        answerLabel.style.display = "block";
+        answerBox.style.display = "block";
+        codingBox.style.display = "none";
+
+        document.getElementById("answer").value = "";
+        setCodeStatus("");
+        setCodeOutput("");
+        setSpeechStatus("Question loaded.");
+    }
+
+    lastCodeSubmitResult = null;
+    lastCodeSubmittedSource = "";
+}
+
+function parseTestCasesOrThrow(rawValue) {
+    const trimmed = (rawValue || "").trim();
+    if (!trimmed) {
+        throw new Error("Please provide test cases JSON.");
+    }
+
+    let parsed;
+    try {
+        parsed = JSON.parse(trimmed);
+    } catch {
+        throw new Error("Invalid test cases JSON. Use array format: [{\"input\":\"3\",\"expectedOutput\":\"6\"}]");
+    }
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error("Test cases must be a non-empty JSON array.");
+    }
+
+    parsed.forEach((item, index) => {
+        if (!item || typeof item.expectedOutput === "undefined") {
+            throw new Error(`Test case ${index + 1} is missing expectedOutput.`);
+        }
+    });
+
+    return parsed;
+}
+
+async function runCodeNow() {
+    setCodeStatus("");
+    setCodeOutput("");
+
+    const payload = readCodeForm();
+    if (!payload.sourceCode.trim()) {
+        setCodeStatus("Please write source code before running.", true);
+        return;
+    }
+
+    const runBtn = document.getElementById("codeRunBtn");
+    runBtn.disabled = true;
+
+    try {
+        const response = await apiFetch("/api/code/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                language: payload.language,
+                version: payload.version,
+                sourceCode: payload.sourceCode,
+                stdin: payload.stdin
+            })
+        }, false);
+
+        if (!response.ok) {
+            throw new Error(await parseApiError(response, "Run failed."));
+        }
+
+        const result = await response.json();
+        const outputText = [
+            `Success: ${result.success}`,
+            `Exit Code: ${result.exitCode ?? "null"}`,
+            "",
+            "STDOUT:",
+            result.stdout || "",
+            "",
+            "STDERR:",
+            result.stderr || "",
+            "",
+            "COMPILE OUTPUT:",
+            result.compileOutput || ""
+        ].join("\n");
+
+        setCodeStatus("Run completed.");
+        setCodeOutput(outputText);
+    } catch (error) {
+        setCodeStatus(normalizeClientError(error, "Unable to run code."), true);
+    } finally {
+        runBtn.disabled = false;
+    }
+}
+
+async function submitCodeNow() {
+    setCodeStatus("");
+    setCodeOutput("");
+    lastCodeSubmitResult = null;
+
+    const payload = readCodeForm();
+    if (!payload.sourceCode.trim()) {
+        setCodeStatus("Please write source code before submitting tests.", true);
+        return;
+    }
+
+    let testCases;
+    try {
+        testCases = parseTestCasesOrThrow(payload.testCasesRaw);
+    } catch (error) {
+        setCodeStatus(error.message || "Invalid test cases.", true);
+        return;
+    }
+
+    const submitBtn = document.getElementById("codeSubmitBtn");
+    submitBtn.disabled = true;
+
+    try {
+        const response = await apiFetch("/api/code/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                language: payload.language,
+                version: payload.version,
+                sourceCode: payload.sourceCode,
+                testCases
+            })
+        }, false);
+
+        if (!response.ok) {
+            throw new Error(await parseApiError(response, "Code submit failed."));
+        }
+
+        const result = await response.json();
+        lastCodeSubmitResult = result;
+        lastCodeSubmittedSource = payload.sourceCode;
+
+        const lines = [
+            `All Passed: ${result.allPassed}`,
+            `Passed: ${result.passedCount}/${result.totalCount}`,
+            "",
+            "Per Test Case:"
+        ];
+
+        (result.results || []).forEach(item => {
+            lines.push(`- #${item.index}: ${item.passed ? "PASS" : "FAIL"}`);
+            lines.push(`  input: ${item.input ?? ""}`);
+            lines.push(`  expected: ${item.expectedOutput ?? ""}`);
+            lines.push(`  actual: ${item.actualOutput ?? ""}`);
+            if (item.stderr) {
+                lines.push(`  stderr: ${item.stderr}`);
+            }
+        });
+
+        setCodeStatus("Code submission completed.");
+        setCodeOutput(lines.join("\n"));
+    } catch (error) {
+        setCodeStatus(normalizeClientError(error, "Unable to submit code."), true);
+    } finally {
+        submitBtn.disabled = false;
+    }
 }
 
 function setProctoringBadges(result) {
@@ -698,9 +910,27 @@ async function getQuestion() {
         return;
     }
 
-    let question = await response.text();
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+        let textResponse = await response.text();
+        if (textResponse.includes("INTERVIEW_FINISHED")) {
+            stopProctoringLoop();
+            stopCameraStream();
+            hideEyeContactAlert();
+            await loadReport();
+            return;
+        }
+    }
 
-    if (question.includes("INTERVIEW_FINISHED")) {
+    const question = await response.json();
+    if (!question || !question.prompt) {
+        setError("Invalid question response from server.");
+        return;
+    }
+
+    currentQuestion = question;
+
+    if (String(question.prompt).includes("INTERVIEW_FINISHED")) {
 
         stopProctoringLoop();
         stopCameraStream();
@@ -714,10 +944,10 @@ async function getQuestion() {
     document.getElementById("progressPill").innerText =
         `${difficultyValue.toUpperCase()} • Question ${questionNumber}`;
 
-    document.getElementById("questionText").innerText = question;
-    setSpeechStatus("Question loaded.");
+    document.getElementById("questionText").innerText = question.prompt;
+    renderQuestionByType(question);
 
-    if (document.getElementById("autoSpeakToggle").checked) {
+    if (!isCodingQuestion() && document.getElementById("autoSpeakToggle").checked) {
         speakCurrentQuestion();
     }
 
@@ -732,6 +962,34 @@ async function submitAnswer() {
     setError("");
 
     let answer = document.getElementById("answer").value;
+
+    if (isCodingQuestion()) {
+        const codeForm = readCodeForm();
+        if (!codeForm.sourceCode.trim()) {
+            setError("Please write code before submitting this coding answer.");
+            return;
+        }
+
+        const shouldValidateNow = !lastCodeSubmitResult || lastCodeSubmittedSource !== codeForm.sourceCode;
+        if (shouldValidateNow) {
+            await submitCodeNow();
+            if (!lastCodeSubmitResult) {
+                setError("Code validation failed. Fix issues and try again.");
+                return;
+            }
+        }
+
+        const submitSummary = lastCodeSubmitResult
+            ? `Tests: ${lastCodeSubmitResult.passedCount}/${lastCodeSubmitResult.totalCount}, allPassed=${lastCodeSubmitResult.allPassed}`
+            : "Tests not executed yet.";
+
+        answer = [
+            `Coding Submission (${codeForm.language} ${codeForm.version || "*"})`,
+            submitSummary,
+            "",
+            codeForm.sourceCode
+        ].join("\n");
+    }
 
     if (!answer || !answer.trim()) {
         setError("Please write an answer before submitting.");
@@ -759,7 +1017,10 @@ async function submitAnswer() {
 
             body: JSON.stringify({
                 sessionId: sessionId,
-                answer: answer
+                answer: answer,
+                sourceCode: isCodingQuestion() ? readCodeForm().sourceCode : null,
+                language: isCodingQuestion() ? readCodeForm().language : null,
+                version: isCodingQuestion() ? readCodeForm().version : null
             })
 
         });
@@ -874,6 +1135,7 @@ function resetProctoringUi() {
 function restartInterview() {
     sessionId = "";
     questionNumber = 0;
+    currentQuestion = null;
     isRecording = false;
     baseAnswerText = "";
     finalTranscript = "";
@@ -900,7 +1162,17 @@ function restartInterview() {
     document.getElementById("startSection").style.display = "block";
     document.getElementById("questionSection").style.display = "none";
     document.getElementById("reportSection").style.display = "none";
+    document.getElementById("answerLabel").style.display = "block";
+    document.getElementById("answer").style.display = "block";
+    document.getElementById("codingBox").style.display = "none";
     document.getElementById("answer").value = "";
+    document.getElementById("codeSource").value = "";
+    document.getElementById("codeStdin").value = "";
+    document.getElementById("codeTestCases").value = "";
+    setCodeStatus("");
+    setCodeOutput("");
+    lastCodeSubmitResult = null;
+    lastCodeSubmittedSource = "";
 }
 
 window.startInterview = startInterview;
@@ -908,6 +1180,8 @@ window.speakCurrentQuestion = speakCurrentQuestion;
 window.startRecording = startRecording;
 window.stopRecording = stopRecording;
 window.submitAnswer = submitAnswer;
+window.runCodeNow = runCodeNow;
+window.submitCodeNow = submitCodeNow;
 window.restartInterview = restartInterview;
 window.signupWithEmail = signupWithEmail;
 window.signinWithEmail = signinWithEmail;

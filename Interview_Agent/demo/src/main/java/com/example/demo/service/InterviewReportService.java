@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.InterviewReport;
+import com.example.demo.model.InterviewQuestion;
 import com.example.demo.model.InterviewSession;
 import com.example.demo.model.ProctoringTimelinePoint;
 import com.example.demo.entity.ProctoringEvent;
@@ -42,7 +43,9 @@ public class InterviewReportService {
         prompt.append("\nQuestions and Answers:\n\n");
 
         for (int i = 0; i < session.getQuestions().size(); i++) {
-            prompt.append("Q: ").append(session.getQuestions().get(i)).append("\n");
+            InterviewQuestion question = session.getQuestions().get(i);
+            String promptText = question == null ? "" : question.getPrompt();
+            prompt.append("Q: ").append(promptText).append("\n");
             if (i < session.getAnswers().size()) {
                 prompt.append("A: ").append(session.getAnswers().get(i)).append("\n\n");
             } else {
@@ -239,7 +242,8 @@ Rules:
             }
 
             if (i < session.getQuestions().size()) {
-                String topic = extractTopic(session.getQuestions().get(i));
+                InterviewQuestion question = session.getQuestions().get(i);
+                String topic = extractTopic(question == null ? "" : question.getPrompt());
                 if (!topic.isBlank()) {
                     topics.add(topic);
                 }
