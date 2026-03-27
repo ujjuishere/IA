@@ -1,0 +1,22 @@
+let sessionId = "";
+let questionNumber = 0;
+let difficultyValue = "medium";
+let loaderTimer = null;
+let proctoringIntervalId = null;
+let proctoringStream = null;
+let proctoringInFlight = false;
+let eyeContactPopupTimer = null;
+
+const speechSupported = "speechSynthesis" in window;
+const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognitionSupported = !!SpeechRecognitionApi;
+let recognition = null;
+let isRecording = false;
+let baseAnswerText = "";
+let finalTranscript = "";
+let apiBaseUrl = "";
+let lastCodeSubmitResult = null;
+let lastCodeSubmittedSource = "";
+let currentQuestion = null;
+const AUTH_TOKEN_KEY = "authToken";
+let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || "";

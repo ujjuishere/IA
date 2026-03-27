@@ -304,14 +304,13 @@ public class CodeExecutionService {
         if (!(statusObj instanceof Map<?, ?> statusMap)) {
             return false;
         }
-
         Object idObj = statusMap.get("id");
         if (!(idObj instanceof Number statusId)) {
             return false;
         }
-
         int id = statusId.intValue();
         return !Set.of(1, 2).contains(id);
+    
     }
 
     private JsonNode mapJudge0ToInternalRunResult(Map<?, ?> judge0Result) {
