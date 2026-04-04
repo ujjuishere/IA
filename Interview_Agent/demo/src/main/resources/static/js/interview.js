@@ -186,17 +186,26 @@ async function submitAnswer() {
         window.speechSynthesis.cancel();
     }
 
-    document.getElementById("submitBtn").disabled = true;
+    const submitBtn = document.getElementById("submitBtn");
+    const originalButtonText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+
+    // Failsafe timeout to re-enable button if request hangs
+    const timeoutId = setTimeout(() => {
+        if (submitBtn.disabled) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalButtonText;
+            setError("Request timeout. Please try again.");
+        }
+    }, 30000);
 
     try {
         let response = await apiFetch("/interview/answer", {
-
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json"
             },
-
             body: JSON.stringify({
                 sessionId: sessionId,
                 answer: answer,
@@ -204,7 +213,6 @@ async function submitAnswer() {
                 language: isCodingQuestion() ? readCodeForm().language : null,
                 version: isCodingQuestion() ? readCodeForm().version : null
             })
-
         });
 
         if (!response.ok) {
@@ -218,7 +226,9 @@ async function submitAnswer() {
     } catch (e) {
         setError(normalizeClientError(e, "Unable to submit answer."));
     } finally {
-        document.getElementById("submitBtn").disabled = false;
+        clearTimeout(timeoutId);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalButtonText;
     }
 
 }

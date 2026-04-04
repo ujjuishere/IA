@@ -84,7 +84,18 @@ async function runCodeNow() {
     }
 
     const runBtn = document.getElementById("codeRunBtn");
+    const originalButtonText = runBtn.textContent;
     runBtn.disabled = true;
+    runBtn.textContent = "Running...";
+
+    // Failsafe timeout to re-enable button if request hangs
+    const timeoutId = setTimeout(() => {
+        if (runBtn.disabled) {
+            runBtn.disabled = false;
+            runBtn.textContent = originalButtonText;
+            setCodeStatus("Request timeout. Please try again.", true);
+        }
+    }, 30000);
 
     try {
         const response = await apiFetch("/api/code/run", {
@@ -117,12 +128,14 @@ async function runCodeNow() {
             result.compileOutput || ""
         ].join("\n");
 
-        setCodeStatus("Run completed.");
+        setCodeStatus("Run completed successfully.");
         setCodeOutput(outputText);
     } catch (error) {
         setCodeStatus(normalizeClientError(error, "Unable to run code."), true);
     } finally {
+        clearTimeout(timeoutId);
         runBtn.disabled = false;
+        runBtn.textContent = originalButtonText;
     }
 }
 
@@ -146,7 +159,18 @@ async function submitCodeNow() {
     }
 
     const submitBtn = document.getElementById("codeSubmitBtn");
+    const originalButtonText = submitBtn.textContent;
     submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+
+    // Failsafe timeout to re-enable button if request hangs
+    const timeoutId = setTimeout(() => {
+        if (submitBtn.disabled) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalButtonText;
+            setCodeStatus("Request timeout. Please try again.", true);
+        }
+    }, 30000);
 
     try {
         const response = await apiFetch("/api/code/submit", {
@@ -185,11 +209,13 @@ async function submitCodeNow() {
             }
         });
 
-        setCodeStatus("Code submission completed.");
+        setCodeStatus(`Code submission completed. ${result.allPassed ? "✓ All tests passed!" : "⚠ Some tests failed."}`);
         setCodeOutput(lines.join("\n"));
     } catch (error) {
         setCodeStatus(normalizeClientError(error, "Unable to submit code."), true);
     } finally {
+        clearTimeout(timeoutId);
         submitBtn.disabled = false;
+        submitBtn.textContent = originalButtonText;
     }
 }

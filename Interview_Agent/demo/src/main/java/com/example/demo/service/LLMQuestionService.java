@@ -106,6 +106,9 @@ Create EXACTLY 5 interview questions in this structure:
 Rules:
 - Exactly 4 speaking + 1 coding question.
 - Coding question must be suitable for online execution.
+- Python code must be compatible with Python 3.8.
+- Do NOT use built-in generic syntax like list[int], dict[str, int], set[str], tuple[int, int].
+- Use typing.List, typing.Dict, typing.Set, typing.Tuple, typing.Optional when needed.
 - Keep prompts clear and interview-ready.
 - testCases must be deterministic with exact expectedOutput.
 """);

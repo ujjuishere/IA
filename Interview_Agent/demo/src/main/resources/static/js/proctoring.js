@@ -39,6 +39,19 @@ async function captureFrameAndSend(interviewId) {
         return;
     }
 
+    // Skip proctoring analysis during coding questions (candidate may look at keyboard/notes)
+    // Camera stays on for security, but don't send frames for analysis
+    if (isCodingQuestion()) {
+        setProctoringBadges({
+            emotion: "coding_mode",
+            focus: "coding",
+            eyeContact: null,
+            attentionScore: 1.0
+        });
+        hideEyeContactAlert();
+        return;
+    }
+
     const video = document.getElementById("cameraPreview");
     const canvas = document.getElementById("captureCanvas");
 

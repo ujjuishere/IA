@@ -119,8 +119,12 @@ public class CodeExecutionService {
         String finalSourceCode = sourceCode;
         String langLower = language.toLowerCase();
 
-        if (langLower.contains("python") && sourceCode.contains("def ")) {
-            finalSourceCode = wrapPythonCode(sourceCode, stdin);
+        if (langLower.contains("python")) {
+            finalSourceCode = normalizePythonForJudge0(finalSourceCode);
+        }
+
+        if (langLower.contains("python") && finalSourceCode.contains("def ")) {
+            finalSourceCode = wrapPythonCode(finalSourceCode, stdin);
         } else if ((langLower.contains("javascript") || langLower.contains("node") || langLower.contains("js"))
                 && (sourceCode.contains("function ") || sourceCode.contains("const ") || sourceCode.contains("let "))) {
             finalSourceCode = wrapJavaScriptCode(sourceCode, stdin);
@@ -378,6 +382,39 @@ public class CodeExecutionService {
         wrapped.append("    sys.exit(1)\n");
         
         return wrapped.toString();
+    }
+
+    private String normalizePythonForJudge0(String sourceCode) {
+        if (sourceCode == null || sourceCode.isBlank()) {
+            return sourceCode;
+        }
+
+        String normalized = sourceCode;
+        boolean needsTypingImport = false;
+
+        if (normalized.contains("list[")) {
+            normalized = normalized.replace("list[", "List[");
+            needsTypingImport = true;
+        }
+        if (normalized.contains("dict[")) {
+            normalized = normalized.replace("dict[", "Dict[");
+            needsTypingImport = true;
+        }
+        if (normalized.contains("set[")) {
+            normalized = normalized.replace("set[", "Set[");
+            needsTypingImport = true;
+        }
+        if (normalized.contains("tuple[")) {
+            normalized = normalized.replace("tuple[", "Tuple[");
+            needsTypingImport = true;
+        }
+
+        boolean hasTypingImport = normalized.contains("from typing import") || normalized.contains("import typing");
+        if (needsTypingImport && !hasTypingImport) {
+            normalized = "from typing import List, Dict, Set, Tuple\n" + normalized;
+        }
+
+        return normalized;
     }
 
     private String extractFunctionName(String sourceCode) {

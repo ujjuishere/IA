@@ -104,13 +104,34 @@ function setProctoringBadges(result) {
     const eyeEl = document.getElementById("badgeEyeContact");
     const attentionEl = document.getElementById("badgeAttention");
 
-    emotionEl.innerText = `Emotion: ${emotion}`;
-    focusEl.innerText = `Focus: ${focus}`;
-    eyeEl.innerText = `Eye Contact: ${eyeContact}`;
-    attentionEl.innerText = `Attention: ${attention}`;
+    // Handle coding mode (proctoring paused for coding questions)
+    if (emotion === "coding_mode" || focus === "coding") {
+        emotionEl.innerText = "Emotion: — (Coding)";
+        focusEl.innerText = "Focus: Coding Mode";
+        eyeEl.innerText = "Eye Contact: — (Coding)";
+        attentionEl.innerText = "Attention: — (Paused)";
+        
+        emotionEl.classList.toggle("info", true);
+        focusEl.classList.toggle("info", true);
+        eyeEl.classList.toggle("info", true);
+        attentionEl.classList.toggle("info", true);
+        
+        focusEl.classList.remove("warn");
+        eyeEl.classList.remove("warn");
+    } else {
+        emotionEl.innerText = `Emotion: ${emotion}`;
+        focusEl.innerText = `Focus: ${focus}`;
+        eyeEl.innerText = `Eye Contact: ${eyeContact}`;
+        attentionEl.innerText = `Attention: ${attention}`;
+        
+        emotionEl.classList.toggle("info", false);
+        focusEl.classList.toggle("info", false);
+        eyeEl.classList.toggle("info", false);
+        attentionEl.classList.toggle("info", false);
 
-    focusEl.classList.toggle("warn", focus === "distracted" || focus === "unknown");
-    eyeEl.classList.toggle("warn", !eyeContact);
+        focusEl.classList.toggle("warn", focus === "distracted" || focus === "unknown");
+        eyeEl.classList.toggle("warn", !eyeContact);
+    }
 }
 
 function showEyeContactAlert() {
@@ -164,3 +185,52 @@ function resetProctoringUi() {
 
     renderProctoringTimeline([]);
 }
+
+function toggleFullscreen() {
+    const questionSection = document.getElementById("questionSection");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    
+    if (!document.fullscreenElement) {
+        // Enter fullscreen
+        const req = questionSection.requestFullscreen ||
+                    questionSection.webkitRequestFullscreen ||
+                    questionSection.mozRequestFullScreen ||
+                    questionSection.msRequestFullscreen;
+        
+        if (req) {
+            req.call(questionSection).catch(err => {
+                console.error("Fullscreen request failed:", err);
+            });
+        }
+    } else {
+        // Exit fullscreen
+        const exit = document.exitFullscreen ||
+                     document.webkitExitFullscreen ||
+                     document.mozCancelFullScreen ||
+                     document.msExitFullscreen;
+        
+        if (exit) {
+            exit.call(document);
+        }
+    }
+}
+
+// Update button text when fullscreen changes
+document.addEventListener("fullscreenchange", () => {
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    if (document.fullscreenElement) {
+        fullscreenBtn.textContent = "✕ Exit Fullscreen";
+    } else {
+        fullscreenBtn.textContent = "⛶ Fullscreen";
+    }
+});
+
+// Fallback for webkit fullscreen events
+document.addEventListener("webkitfullscreenchange", () => {
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    if (document.webkitFullscreenElement) {
+        fullscreenBtn.textContent = "✕ Exit Fullscreen";
+    } else {
+        fullscreenBtn.textContent = "⛶ Fullscreen";
+    }
+});

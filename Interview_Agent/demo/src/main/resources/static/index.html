@@ -145,6 +145,7 @@
             <button id="speakBtn" class="btn-cyan" type="button" onclick="speakCurrentQuestion()">Speak Question</button>
             <button id="startRecBtn" class="btn-cyan" type="button" onclick="startRecording()">Start Recording</button>
             <button id="stopRecBtn" class="btn-red" type="button" onclick="stopRecording()" disabled>Stop Recording</button>
+            <button id="fullscreenBtn" class="btn-cyan" type="button" onclick="toggleFullscreen()" title="Enter fullscreen">⛶ Fullscreen</button>
             <label class="voice-toggle" for="autoSpeakToggle">
                 <input id="autoSpeakToggle" type="checkbox" checked />
                 Auto speak question
@@ -189,7 +190,7 @@
 
             <div class="btn-row">
                 <button id="codeRunBtn" class="btn-cyan" type="button" onclick="runCodeNow()">Run Code</button>
-                <button id="codeSubmitBtn" type="button" onclick="submitCodeNow()">Submit Code Tests</button>
+                <button id="codeSubmitBtn" class="btn-cyan" type="button" onclick="submitCodeNow()">Submit Code Tests</button>
             </div>
 
             <p id="codeStatus"></p>
